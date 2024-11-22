@@ -125,8 +125,11 @@ const Homepage = () => {
           ease: [0.85, 0, 0.15, 1],
           duration: 0.5,
         }}
-        className="h-screen w-screen px-10 pt-[10rem]"
-      ></motion.main>
+        className="h-screen w-screen px-10 pt-[8rem]"
+      >
+        <h1 className="text-[3rem] ">Taza Khabar1</h1>
+        <h1 className="text-[3rem] font-light">Some Randi Rona here</h1>
+      </motion.main>
     </React.Fragment>
   );
 };

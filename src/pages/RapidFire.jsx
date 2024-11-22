@@ -1,15 +1,47 @@
 import React from "react";
-import { motion } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
 import { GiHamburgerMenu } from "react-icons/gi";
 import { IoCloseOutline } from "react-icons/io5";
 import { FaArrowLeftLong } from "react-icons/fa6";
+import { FaRegStar, FaStar } from "react-icons/fa";
+
+// This is the api key
+// 545a6a4b813f499e907d31c7d6260ead
+
+// This is the actual api
+// https://newsapi.org/v2/everything?q=bitcoin&apiKey=545a6a4b813f499e907d31c7d6260ead
 
 const RapidFire = () => {
+  const [markedNews, setMarkedNews] = React.useState([]);
   const [pageChanged, setPageChange] = React.useState(true);
   const [isSideNavbarActive, setSideNavbarActive] = React.useState(false);
 
   const [currentTheme, setCurrentTheme] = React.useState("");
 
+  const [currentNews, setCurrentNews] = React.useState(0);
+
+  const [autoAnimateWidth, setAnimateWidth] = React.useState(0);
+
+  const [news, setNews] = React.useState({
+    articles: [
+      {
+        author: "Uddeshya Singh",
+        content: "hello world my name is uddehsya sigh",
+        description: "lorem",
+        publisedAt: "2024-10-22T11:33:59Z",
+        source: {
+          id: "iit_rajpura",
+          name: "Chitkara University",
+        },
+        title:
+          "Meet ZachXBT, the Masked Vigilante Tracking Down Billions in Crypto Scams and Thefts",
+        actualPage:
+          "https://www.wired.com/story/meet-zachxbt-243-million-crypto-theft/",
+        image:
+          "https://media.wired.com/photos/671803d2124551b4eaed68ad/191:100/w_1280,c_limit/security_zachxbt_crypto_vigilante.jpg",
+      },
+    ],
+  });
   React.useEffect(() => {
     const item = localStorage.getItem("theme");
     if (item) setCurrentTheme(item);
@@ -22,6 +54,30 @@ const RapidFire = () => {
       setPageChange(false);
     }, 600);
   }, []);
+
+  React.useEffect(() => {
+    (async () => {
+      const news = await fetch(
+        "https://newsapi.org/v2/everything?q=bitcoin&apiKey=545a6a4b813f499e907d31c7d6260ead"
+      );
+      setNews(await news.json());
+    })();
+  }, []);
+
+  React.useEffect(() => {
+    console.log(news);
+  }, [news]);
+
+  React.useEffect(() => {
+    if (autoAnimateWidth < 100) {
+      setTimeout(() => {
+        setAnimateWidth((width) => width + 1);
+      }, 100);
+    } else if (autoAnimateWidth == 100) {
+      setAnimateWidth(0);
+      setCurrentNews((ne) => ne + 1);
+    }
+  }, [autoAnimateWidth]);
   return (
     <React.Fragment>
       <motion.div
@@ -86,24 +142,108 @@ const RapidFire = () => {
         </h1>
 
         <div className="w-full h-[80vh] mt-10 flex gap-[1rem]">
-          <div className="flex-[1.5] bg-white/10 rounded-md"></div>
-          <div className="flex-[1] bg-[#af685c30] flex flex-col gap-[1rem] p-3 rounded-md">
-            <div className="flex-[2.5] bg-red-300/10 rounded-md"></div>
-            <div className="flex-1 bg-red-300/10 flex gap-[1rem] rounded-md p-3">
-              <motion.div
-                whileTap={{ scale: 0.95 }}
-                className="flex-1 bg-white/10 flex justify-center rounded-md text-gray-400 hover:cursor-pointer items-center"
-              >
-                <FaArrowLeftLong size={30} />
-              </motion.div>
-
-              <motion.div
-                whileTap={{ scale: 0.95 }}
-                className="flex-1 bg-white/10 flex justify-center rounded-md text-gray-400 hover:cursor-pointer items-center"
-              >
-                <FaArrowLeftLong size={30} className="rotate-180"/>
-              </motion.div>
+          <div className="flex-[1.5] bg-white/10 rounded-md p-10 flex justify-start items-end">
+            <div className="flex flex-col h-full">
+              <div className="bg-white/20 w-full flex-1 mb-5 rounded-md">
+                <img
+                  src={news.articles[currentNews].image}
+                  className="w-full h-full object-cover"
+                  alt="there was a image here"
+                />
+              </div>
+              <h1 className="font-bold text-white text-[2rem] leading-tight">
+                {news.articles[currentNews].title}
+              </h1>
+              <p className="font-light text-gray-400 text-[1.25rem] text-justify mt-5">
+                {news.articles[currentNews].content}
+              </p>
             </div>
+          </div>
+          <div className="flex-[1] bg-[#af685c30] flex flex-col gap-[1rem] p-3 rounded-md">
+            {/* content screen  */}
+            <div className="flex-[2.5] bg-red-300/10 px-8 py-2 rounded-md ">
+              <div className="flex justify-between items-center">
+                <div className="flex items-end justify-start gap-[1rem]">
+                  <p className="text-white text-[3rem] text-justify mt-5 leading-[2.5rem]">
+                    {news.articles[currentNews].source.name}
+                  </p>
+                  <p className="text-white font-light text-[1rem] text-justify mt-5 leading-[1rem]">
+                    {news.articles[currentNews].author}
+                  </p>
+                </div>
+                <div
+                  className="hover:cursor-pointer text-white"
+                  onClick={() => {
+                    if (!markedNews.includes(currentNews)) {
+                      setMarkedNews((curr) => [...curr, currentNews]);
+                    } else {
+                      const arr = markedNews.filter(
+                        (item) => item !== currentNews
+                      );
+                      setMarkedNews(arr);
+                    }
+                  }}
+                >
+                  {!markedNews.includes(currentNews) ? (
+                    <FaRegStar size={20} />
+                  ) : (
+                    <FaStar size={20} />
+                  )}
+                </div>
+              </div>
+
+              <h3 className="text-gray-400 py-2">
+                {news.articles[currentNews].content}
+              </h3>
+            </div>
+
+            {/* right and left buttons */}
+            <motion.div
+              layout
+              className="flex-1 bg-red-300/10 flex gap-[1rem] rounded-md p-3"
+            >
+              <AnimatePresence>
+                {currentNews !== 0 && (
+                  <motion.div
+                    onClick={() => setCurrentNews((res) => res - 1)}
+                    whileTap={{ scale: 0.95 }}
+                    animate={{
+                      scale: 1,
+                    }}
+                    initial={{
+                      scale: 0,
+                    }}
+                    exit={{
+                      scale: 0,
+                    }}
+                    className="flex-1 bg-white/10 flex justify-center rounded-md text-gray-400 hover:cursor-pointer items-center"
+                  >
+                    <FaArrowLeftLong size={30} />
+                  </motion.div>
+                )}
+              </AnimatePresence>
+              <motion.div
+                layout
+                onClick={() => setCurrentNews((res) => res + 1)}
+                whileTap={{ scale: 0.95 }}
+                className="flex-1 relative bg-white/10 flex justify-center rounded-md text-gray-400 hover:cursor-pointer items-center"
+              >
+                <FaArrowLeftLong
+                  size={30}
+                  className="rotate-180 absolute left-1/2 -translate-x-1/2 top-1/2 -translate-y-1/2 mix-blend-difference z-[10]"
+                />
+
+                <motion.div
+                  animate={{
+                    width: `${autoAnimateWidth}%`,
+                  }}
+                  transition={{
+                    ease: [0.25, 1, 0.5, 1],
+                  }}
+                  className="h-full bg-white absolute left-0"
+                />
+              </motion.div>
+            </motion.div>
           </div>
         </div>
       </motion.main>
